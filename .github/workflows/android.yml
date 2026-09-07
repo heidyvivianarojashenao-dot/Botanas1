@@ -11,22 +11,34 @@ jobs:
       - name: Descargar proyecto
         uses: actions/checkout@v4
 
+      - name: Instalar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Instalar Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Preparar proyecto
+      - name: Instalar SDK Android 36
         run: |
-          unzip -o BOTANAS_PINAS_ANDROID_PLAY_V2_API36.zip -d botanas_project
-          cd botanas_project
-          chmod +x ../gradlew 2>/dev/null || true
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Descomprimir proyecto
+        run: |
+          mkdir botanas_project
+          unzip -q BOTANAS_PINAS_ANDROID_PLAY_V2_API36.zip -d botanas_project
 
       - name: Instalar Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
       - name: Construir APK
         run: |
           cd botanas_project
-          gradle assembleDebug
+          gradle assembleDebug --no-daemon
 
       - name: Guardar APK
         uses: actions/upload-artifact@v4
