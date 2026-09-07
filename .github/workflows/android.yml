@@ -1,0 +1,35 @@
+name: Construir APK Botanas
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+
+      - name: Instalar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Preparar proyecto
+        run: |
+          unzip -o BOTANAS_PINAS_ANDROID_PLAY_V2_API36.zip -d botanas_project
+          cd botanas_project
+          chmod +x ../gradlew 2>/dev/null || true
+
+      - name: Instalar Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Construir APK
+        run: |
+          cd botanas_project
+          gradle assembleDebug
+
+      - name: Guardar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Botanas-APK
+          path: botanas_project/app/build/outputs/apk/debug/app-debug.apk
